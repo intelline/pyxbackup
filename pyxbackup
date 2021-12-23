@@ -7,6 +7,7 @@
 import sys, traceback, os, errno, signal, socket
 import time, calendar, shutil, re, pwd
 import smtplib, MySQLdb, base64, json
+import json as jsonObj
 from datetime import datetime, timedelta
 from ConfigParser import ConfigParser, NoOptionError
 from optparse import OptionParser
@@ -2385,7 +2386,7 @@ def run_xb_incr():
 def run_xb_list():
     """List existing "valid backups"""
     txt = ''
-    json = ''
+    json = {"full": [], "weekly": [], "montly": [], "binlogs": []}
 
     if xb_opt_remote_push_only:
         return _ssh_execute("%s list" % xb_opt_remote_script, True)
@@ -2396,26 +2397,26 @@ def run_xb_list():
 
 
     for f in xb_full_list:
-        txt = "# Full backup: " + f
+        txt += "# Full backup: " + f
         if f in xb_incr_list and xb_incr_list[f] and len(xb_incr_list[f]) > 0:
-            txt += ", incrementals: " + str(xb_incr_list[f])
+            txt += ", incrementals: " + str(xb_incr_list[f]) + "\n"
 
-    json = json.dumps(xb_incr_list)
-
+    json["full"] = xb_incr_list
+    
     if xb_weekly_list is not None and len(xb_weekly_list) > 0:
         txt = "# Weekly list: %s" % str(xb_weekly_list)
-        json = '{"msg": "%s", "type": "info"}' % txt
+        json["weekly"] = xb_weekly_list
 
     if xb_monthly_list is not None and len(xb_monthly_list) > 0:
         txt = "# Monthly list: %s" % str(xb_monthly_list)
-        json = '{"msg": "%s", "type": "info"}' % txt
+        json["monthly"] = xb_monthly_list
 
     if xb_binlogs_list is not None and len(xb_binlogs_list) > 0:
         txt = "# Binary logs from %s to %s, %d total" % (
             xb_binlogs_list[0], xb_binlogs_list[-1], len(xb_binlogs_list))
-        json = '{"msg": "%s", "type": "info"}' % txt
+        json["binlogs"] = xb_binlogs_list
 
-    if xb_opt_status_format == 'json': print json
+    if xb_opt_status_format == 'json': print jsonObj.dumps(json, sort_keys=True)
     else: print txt
 
 def run_status():

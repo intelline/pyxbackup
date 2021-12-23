@@ -2487,13 +2487,13 @@ def run_status():
 
     if ret == 0: 
         txt = "OK - %s" % txt
-        json = '{"msg": "%s", "type": "info"}' % txt
+        json = '{"msg": "%s", "type": "info", "status": "OK"}' % txt
     elif ret == 1: 
         txt = "WARN - %s" % txt
-        json = '{"msg": "%s", "type": "warning"}' % txt
+        json = '{"msg": "%s", "type": "warning", "status": "WARN"}' % txt
     else: 
         txt = "CRITICAL - %s" % txt
-        json = '{"msg": "%s", "type": "error"}' % txt
+        json = '{"msg": "%s", "type": "error", "status": "CRITICAL"}' % txt
 
     if xb_opt_status_format == 'nagios': print txt
     elif xb_opt_status_format == 'zabbix': print ret

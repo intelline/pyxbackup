@@ -6,7 +6,7 @@
 
 import sys, traceback, os, errno, signal, socket
 import time, calendar, shutil, re, pwd
-import smtplib, MySQLdb, base64
+import smtplib, MySQLdb, base64, json
 from datetime import datetime, timedelta
 from ConfigParser import ConfigParser, NoOptionError
 from optparse import OptionParser
@@ -43,7 +43,7 @@ xb_opt_remote_stor_dir = None
 xb_opt_remote_host = None
 xb_opt_remote_push_only = None
 xb_opt_remote_script = XB_BIN_NAME
-xb_opt_remote_nc_port = 0
+xb_opt_remote_nc_port = 02
 xb_opt_remote_nc_port_min = 0
 xb_opt_remote_nc_port_max = 0
 xb_opt_ssh_opts = ''
@@ -2397,12 +2397,10 @@ def run_xb_list():
 
     for f in xb_full_list:
         txt = "# Full backup: " + f
-        json = '{"full": "%s"' % f
         if f in xb_incr_list and xb_incr_list[f] and len(xb_incr_list[f]) > 0:
             txt += ", incrementals: " + str(xb_incr_list[f])
-            json += ',"incrementals": ' +  str(xb_incr_list[f])
-        json += '}'
 
+    json = json.dumps(xb_incr_list)
 
     if xb_weekly_list is not None and len(xb_weekly_list) > 0:
         txt = "# Weekly list: %s" % str(xb_weekly_list)

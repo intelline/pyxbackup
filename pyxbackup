@@ -2384,29 +2384,41 @@ def run_xb_incr():
 
 def run_xb_list():
     """List existing "valid backups"""
+    txt = ''
+    json = ''
 
     if xb_opt_remote_push_only:
         return _ssh_execute("%s list" % xb_opt_remote_script, True)
 
     if len(xb_full_list) <= 0:
-        _say("No backups currently available.")
+        txt = "No backups currently available."
+        json = '{"msg": "%s", "type": "info"}' % txt
+
 
     for f in xb_full_list:
-        s = "# Full backup: " + f
+        txt = "# Full backup: " + f
+        json = '{"full": "%s"' % f
         if f in xb_incr_list and xb_incr_list[f] and len(xb_incr_list[f]) > 0:
-            s += ", incrementals: " + str(xb_incr_list[f])
+            txt += ", incrementals: " + str(xb_incr_list[f])
+            json += ',"incrementals": ' +  str(xb_incr_list[f])
+        json += '}'
 
-        print s
 
     if xb_weekly_list is not None and len(xb_weekly_list) > 0:
-        print "# Weekly list: %s" % str(xb_weekly_list)
+        txt = "# Weekly list: %s" % str(xb_weekly_list)
+        json = '{"msg": "%s", "type": "info"}' % txt
 
     if xb_monthly_list is not None and len(xb_monthly_list) > 0:
-        print "# Monthly list: %s" % str(xb_monthly_list)
+        txt = "# Monthly list: %s" % str(xb_monthly_list)
+        json = '{"msg": "%s", "type": "info"}' % txt
 
     if xb_binlogs_list is not None and len(xb_binlogs_list) > 0:
-        print "# Binary logs from %s to %s, %d total" % (
+        txt = "# Binary logs from %s to %s, %d total" % (
             xb_binlogs_list[0], xb_binlogs_list[-1], len(xb_binlogs_list))
+        json = '{"msg": "%s", "type": "info"}' % txt
+
+    if xb_opt_status_format == 'json': print json
+    else: print txt
 
 def run_status():
     """Display status of last backup - excludes any currently running backup"""

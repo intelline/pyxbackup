@@ -2435,21 +2435,29 @@ def run_status():
                 if e.errno == errno.ESRCH:
                     ret = 2
                     txt = 'PID/lock file exists but process is not running'
+                    json = '{"msg": "%s", "type": "error"}' % txt
                 elif e.errno == errno.EPERM:
                     ret = 1
                     txt = 'Permission denied while checking backup process'
+                    json = '{"msg": "%s", "type": "error"}' % txt
                 else:
                     ret = 2
                     txt = 'Unknown backup process state'
+                    json = '{"msg": "%s", "type": "error"}' % txt
             else:
                 if last_dt < old_dt:
                     ret = 1
                     txt = "Backup has been running for more than %d hours" \
                         % bkp_threshold
-                else: txt = "Backup process in progress with PID %d" % pid
+                    json = '{"msg": "%s", "type": "error"}' % txt
+                else: 
+                    txt = "Backup process in progress with PID %d" % pid
+                    json = '{"msg": "%s", "type": "info"}' % txt
+
     elif not xb_last_backup or xb_last_backup == 'NULL':
         ret = 2
         txt = 'No recent backup identified!'
+        json = '{"msg": "%s", "type": "info"}' % txt
     else:
         # We check how old our last backup is, for now itis hardcoded to a
         # threshold of 36 hours. If a full backup takes longer than 12hrs
@@ -2461,12 +2469,20 @@ def run_status():
             ret = 1
             txt = "Last backup %s from %s is more than %d hours old" \
                 % (xb_last_backup_is, xb_last_backup, dt_threshold)
+            json = '{"msg": "%s", "type": "warning"}' % txt
         else:
             txt = "Last backup %s from %s" % (xb_last_backup_is, xb_last_backup)
+            json = '{"msg": "%s", "type": "info"}' % txt
 
-    if ret == 0: txt = "OK - %s" % txt
-    elif ret == 1: txt = "WARN - %s" % txt
-    else: txt = "CRITICAL - %s" % txt
+    if ret == 0: 
+        txt = "OK - %s" % txt
+        json = '{"msg": "%s", "type": "info"}' % txt
+    elif ret == 1: 
+        txt = "WARN - %s" % txt
+        json = '{"msg": "%s", "type": "warning"}' % txt
+    else: 
+        txt = "CRITICAL - %s" % txt
+        json = '{"msg": "%s", "type": "error"}' % txt
 
     if xb_opt_status_format == 'nagios': print txt
     elif xb_opt_status_format == 'zabbix': print ret
@@ -3031,7 +3047,7 @@ Valid commands are:
         help='How much memory to use with innobackupex --use-memory in MB, default 128M')
     parser.add_option('-o', '--status-format', dest='status_format', type="string",
         help=('For status command, what output format, default=none, '
-            'possible values: none, nagios, zabbix (cli)'))
+            'possible values: none, json, nagios, zabbix (cli)'))
     parser.add_option('-r', '--restore-backup', dest='restore_backup', type="string",
         help=('With command restore-set, specify which backup to restore, '
             'choose any from output of list command. Default is restore to last '
@@ -3753,7 +3769,7 @@ class PyxOptions(object):
             help='How much memory to use with innobackupex --use-memory in MB, default 128M')
         parser.add_option('-o', '--status-format', dest='status_format', type="string",
             help=('For status command, what output format, default=none, '
-                'possible values: none, nagios, zabbix (cli)'))
+                'possible values: none, json, nagios, zabbix (cli)'))
         parser.add_option('-r', '--restore-backup', dest='restore_backup', type="string",
             help=('With command restore-set, specify which backup to restore, '
                 'choose any from output of list command. Default is restore to last '

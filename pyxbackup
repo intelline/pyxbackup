@@ -2413,6 +2413,7 @@ def run_status():
 
     ret = 0
     txt = ''
+    json = ''
 
     if xb_opt_remote_push_only: _pre_run_xb()
 
@@ -2422,6 +2423,7 @@ def run_status():
         if pid <= 0:
             ret = 2
             txt = 'Invalid PID file found!'
+            json = '{"msg": "%s", "type": "error"}' % txt
         else:
             bkp_threshold = 24
             last_dt = datetime.strptime(bkp, '%Y_%m_%d-%H_%M_%S')
@@ -2468,6 +2470,7 @@ def run_status():
 
     if xb_opt_status_format == 'nagios': print txt
     elif xb_opt_status_format == 'zabbix': print ret
+    elif xb_opt_status_format == 'json': print json
     sys.exit(ret)
 
 def run_xb_restore_set(prepare_path=None, finalize=True):

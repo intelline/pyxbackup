@@ -44,7 +44,7 @@ xb_opt_remote_stor_dir = None
 xb_opt_remote_host = None
 xb_opt_remote_push_only = None
 xb_opt_remote_script = XB_BIN_NAME
-xb_opt_remote_nc_port = 02
+xb_opt_remote_nc_port = 0
 xb_opt_remote_nc_port_min = 0
 xb_opt_remote_nc_port_max = 0
 xb_opt_ssh_opts = ''
@@ -2392,7 +2392,7 @@ def run_xb_list():
         return _ssh_execute("%s list" % xb_opt_remote_script, True)
 
     if len(xb_full_list) <= 0:
-        txt = "No backups currently available."
+        txt = "No backups currently available.\n"
         json = '{"msg": "%s", "type": "info"}' % txt
 
 
@@ -2404,16 +2404,16 @@ def run_xb_list():
     json["full"] = xb_incr_list
     
     if xb_weekly_list is not None and len(xb_weekly_list) > 0:
-        txt = "# Weekly list: %s" % str(xb_weekly_list)
+        txt += "# Weekly list: %s" % str(xb_weekly_list) + "\n"
         json["weekly"] = xb_weekly_list
 
     if xb_monthly_list is not None and len(xb_monthly_list) > 0:
-        txt = "# Monthly list: %s" % str(xb_monthly_list)
+        txt += "# Monthly list: %s" % str(xb_monthly_list) + "\n"
         json["monthly"] = xb_monthly_list
 
     if xb_binlogs_list is not None and len(xb_binlogs_list) > 0:
-        txt = "# Binary logs from %s to %s, %d total" % (
-            xb_binlogs_list[0], xb_binlogs_list[-1], len(xb_binlogs_list))
+        txt += "# Binary logs from %s to %s, %d total" % (
+            xb_binlogs_list[0], xb_binlogs_list[-1], len(xb_binlogs_list)) + "\n"
         json["binlogs"] = xb_binlogs_list
 
     if xb_opt_status_format == 'json': print jsonObj.dumps(json, sort_keys=True)
